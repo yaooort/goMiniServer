@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"goNginx/server"
 	"goNginx/ui/theme"
@@ -55,6 +56,7 @@ func (p *IndexPage) mainUI(myWindow fyne.Window) *fyne.Container {
 	rootEntry.Text = "./static"
 
 	startButton := widget.NewButton("启动服务器", nil)
+	startButton.Importance = widget.HighImportance
 	started := false
 	ms := server.MiniServer{}
 	//
@@ -79,7 +81,7 @@ func (p *IndexPage) mainUI(myWindow fyne.Window) *fyne.Container {
 				cancelFunc()
 			}
 			ms.Stop(ctx)
-
+			startButton.Importance = widget.HighImportance
 			// Add server stop logic here
 		} else {
 			ctx, cancel = context.WithCancel(context.Background())
@@ -90,6 +92,7 @@ func (p *IndexPage) mainUI(myWindow fyne.Window) *fyne.Container {
 			fmt.Println("Server started on port:", port, "with root directory:", root)
 			cancelFunc = cancel
 			go ms.Start(ctx, port)
+			startButton.Importance = widget.SuccessImportance
 		}
 	}
 
@@ -98,6 +101,7 @@ func (p *IndexPage) mainUI(myWindow fyne.Window) *fyne.Container {
 		portEntry,
 		widget.NewLabel("网站根目录:"),
 		rootEntry,
+		layout.NewSpacer(), // 添加间隔
 		startButton,
 	)
 
