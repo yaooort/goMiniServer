@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -12,18 +13,18 @@ import (
 )
 
 func logLifecycle(a fyne.App) {
-	a.Lifecycle().SetOnStarted(func() {
-		fmt.Println("Lifecycle: Started")
-	})
-	a.Lifecycle().SetOnStopped(func() {
-		fmt.Println("Lifecycle: Stopped")
-	})
-	a.Lifecycle().SetOnEnteredForeground(func() {
-		fmt.Println("Lifecycle: Entered Foreground")
-	})
-	a.Lifecycle().SetOnExitedForeground(func() {
-		fmt.Println("Lifecycle: Exited Foreground")
-	})
+	//a.Lifecycle().SetOnStarted(func() {
+	//	fmt.Println("Lifecycle: Started")
+	//})
+	//a.Lifecycle().SetOnStopped(func() {
+	//	fmt.Println("Lifecycle: Stopped")
+	//})
+	//a.Lifecycle().SetOnEnteredForeground(func() {
+	//	fmt.Println("Lifecycle: Entered Foreground")
+	//})
+	//a.Lifecycle().SetOnExitedForeground(func() {
+	//	fmt.Println("Lifecycle: Exited Foreground")
+	//})
 }
 
 type IndexPage struct {
@@ -33,7 +34,7 @@ func (p *IndexPage) Show() {
 	myApp := app.New()
 	logLifecycle(myApp)
 	myApp.Settings().SetTheme(&theme.MyTheme{})
-	myWindow := myApp.NewWindow("迷你服务器")
+	myWindow := myApp.NewWindow("老莫服务器")
 
 	myWindow.SetContent(p.mainUI(myWindow))
 	myWindow.Resize(fyne.NewSize(280, 200))
@@ -52,17 +53,21 @@ func (p *IndexPage) mainUI(myWindow fyne.Window) *fyne.Container {
 	rootEntry := widget.NewEntry()
 	rootEntry.SetPlaceHolder("请输入网站根目录:")
 	rootEntry.Text = "./static"
+
 	startButton := widget.NewButton("启动服务器", nil)
 	started := false
+	ms := server.MiniServer{}
+	//
+	var cancelFunc context.CancelFunc
+	ctx, cancel := context.WithCancel(context.Background())
 
 	startButton.OnTapped = func() {
 		port := portEntry.Text
 		root := rootEntry.Text
 		if !isValidPort(port) {
-			showError(myWindow, "Invalid Port", "Please enter a valid port number (0-65535).")
+			showError(myWindow, "端口无效", "请输入有效的端口号 (0-65535).")
 			return
 		}
-		ms := server.MiniServer{}
 		ms.DefaultDir = root
 		if started {
 			started = false
@@ -70,14 +75,21 @@ func (p *IndexPage) mainUI(myWindow fyne.Window) *fyne.Container {
 			//startButton.TextStyle = fyne.TextStyle{}
 			startButton.Refresh()
 			fmt.Println("Server stopped")
+			if cancelFunc != nil {
+				cancelFunc()
+			}
+			ms.Stop(ctx)
+
 			// Add server stop logic here
 		} else {
+			ctx, cancel = context.WithCancel(context.Background())
 			started = true
 			startButton.SetText("停止服务器")
 			//startButton.TextStyle = fyne.TextStyle{Bold: true}
 			startButton.Refresh()
 			fmt.Println("Server started on port:", port, "with root directory:", root)
-			go ms.Start(port)
+			cancelFunc = cancel
+			go ms.Start(ctx, port)
 		}
 	}
 
@@ -102,12 +114,13 @@ func isValidPort(port string) bool {
 }
 
 func showError(win fyne.Window, title, message string) {
-	dialogShow := widget.NewModalPopUp(
+	var dialogShow *widget.PopUp
+	dialogShow = widget.NewModalPopUp(
 		container.NewVBox(
 			widget.NewLabelWithStyle(title, fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 			widget.NewLabel(message),
-			widget.NewButton("OK", func() {
-				//Hide()
+			widget.NewButton("关闭", func() {
+				dialogShow.Hide()
 			}),
 		),
 		win.Canvas(),

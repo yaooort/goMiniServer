@@ -25,7 +25,7 @@ windows-x86:
     GOARCH=386 \
     CC=i686-w64-mingw32-gcc \
     CXX=i686-w64-mingw32-g++ \
-    fyne package -os windows -icon Icon.png -output WINDOWS_OUT
+    fyne package -os windows -icon Icon.png --name server-86.exe
 
 # upx 压缩 upx -9 -o ll.exe server.exe
 # 去除黑窗口 -ldflags "-s -w -H=windowsgui"
@@ -35,7 +35,7 @@ windows-x86_64:
     GOARCH=amd64 \
     CC=x86_64-w64-mingw32-gcc \
     CXX=x86_64-w64-mingw32-g++ \
-    fyne package -os windows -icon Icon.png --name server.exe -output WINDOWS_OUT
+    fyne package -os windows -icon Icon.png --name server-64.exe
 
 
 windows: windows-x86 windows-x86_64
