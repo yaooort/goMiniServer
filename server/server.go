@@ -17,7 +17,7 @@ type MiniServer struct {
 	Server        *http.Server
 }
 
-func (m *MiniServer) Start(ctx context.Context, port string) {
+func (m *MiniServer) Start(ctx context.Context, port string, message chan string) {
 	if m.DefaultDir == "" {
 		m.DefaultDir = "./static"
 	}
@@ -64,7 +64,7 @@ func (m *MiniServer) Start(ctx context.Context, port string) {
 
 	// 启动HTTP服务器
 	if err := m.Server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		panic(err)
+		message <- err.Error()
 	}
 }
 
