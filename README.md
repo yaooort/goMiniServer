@@ -5,3 +5,5 @@
 ### 可以实现
 - 可以实现nginx的反向代理功能
 - 可以打包成 Android & windows 极简服务，图形化操作，简单高效
+
+#### [直接下载](https://github.com/yaooort/goMiniServer/releases)
