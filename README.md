@@ -7,3 +7,7 @@
 - 可以打包成 Android & windows 极简服务，图形化操作，简单高效
 
 #### [直接下载](https://github.com/yaooort/goMiniServer/releases)
+
+##### [Android](https://github.com/yaooort/goMiniServer/releases/download/v1.0.0/android.apk)
+
+##### [windows](https://github.com/yaooort/goMiniServer/releases/download/v1.0.0/goNginx.exe)
